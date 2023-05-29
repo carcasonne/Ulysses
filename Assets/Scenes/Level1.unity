@@ -54594,10 +54594,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 8011345}
-  normalSpeed: 0.05
-  fastSpeed: 0.2
+  normalSpeed: 5
+  fastSpeed: 15
   movementTime: 15
-  rotationSpeed: 0.3
+  rotationSpeed: 3
   rotationSpeedMouse: 1
   zoomSpeed: 8
   zoomSpeedMouse: 20

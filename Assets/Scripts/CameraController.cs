@@ -107,11 +107,11 @@ public class CameraController : MonoBehaviour
         //DETERMINE SPEED
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
-            movementSpeed = fastSpeed;
+            movementSpeed = fastSpeed/100;
         } 
         else
         {
-            movementSpeed = normalSpeed;
+            movementSpeed = normalSpeed/100;
         }
 
         //TRANSLATION
@@ -135,12 +135,12 @@ public class CameraController : MonoBehaviour
         //ROTATION
         if (Input.GetKey(KeyCode.Q))
         {
-            newRotation *= Quaternion.Euler(Vector3.up * rotationSpeed);
+            newRotation *= Quaternion.Euler(Vector3.up * rotationSpeed/10);
         }
 
         if (Input.GetKey(KeyCode.E))
         {
-            newRotation *= Quaternion.Euler(Vector3.up * -rotationSpeed);
+            newRotation *= Quaternion.Euler(Vector3.up * -rotationSpeed/10);
         }
 
         //ZOOM
