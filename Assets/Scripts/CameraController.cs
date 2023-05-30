@@ -60,7 +60,7 @@ public class CameraController : MonoBehaviour
         //TRANSLATION
 
         /**
-        if (Input.GetMouseButtonDown(0))
+        if (Input.GetMouseButtonDown(0)) //Left Click
         {
             Plane plane = new Plane(Vector3.up, Vector3.zero);
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -72,7 +72,7 @@ public class CameraController : MonoBehaviour
                 dragStartPosition = ray.GetPoint(entry);
             }
         }
-        if (Input.GetMouseButton(0))
+        if (Input.GetMouseButton(0)) //Left Click
         {
             Plane plane = new Plane(Vector3.up, Vector3.zero);
             Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -181,30 +181,6 @@ public class CameraController : MonoBehaviour
         if (targetY > cameraMaximum.y) newZoom = cameraMaximum;
         else if (targetY < cameraMinimum.y) newZoom = cameraMinimum;
         cameraTransform.localPosition = Vector3.MoveTowards(cameraTransform.localPosition, newZoom, Time.deltaTime * movementTime);
-
-        //if (cameraMaximum.y >= newZoom.y && newZoom.y >= cameraMinimum.y)
-        //{
-        //    cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * movementTime);
-        //    cameraTargetPos = newZoom;
-        //}
-        //else if (newZoom.y < cameraMinimum.y)
-        //{
-        //    if (!cameraTargetPos.Equals(cameraMinimum)) cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, cameraMinimum, Time.deltaTime * movementTime);
-        //    cameraTargetPos = cameraMinimum;
-        //}
-        //else if (newZoom.y > cameraMaximum.y)
-        //{
-        //    if (!cameraTargetPos.Equals(cameraMaximum))
-        //    {
-        //        Debug.Log("current pos : " + cameraTransform.localPosition.ToString("F8") + " target pos : " + cameraMaximum.ToString("F8"));
-        //        cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, cameraMaximum, Time.deltaTime * movementTime);
-        //    }
-        //    cameraTargetPos = cameraMaximum;
-        //}
-        //else Debug.Log("Zoom Limits Issue, Camera Controller: newZoom = " + newZoom);
-
-
-        //cameraTransform.rotation = Quaternion.Lerp(transform.rotation, newZoomRotation, Time.deltaTime * movementTime);
         cameraTransform.LookAt(transform.position);
     }
 }
