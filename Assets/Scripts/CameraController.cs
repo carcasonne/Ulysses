@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.ConstrainedExecution;
 using UnityEngine;
 
 public class CameraController : MonoBehaviour
@@ -23,8 +24,16 @@ public class CameraController : MonoBehaviour
     private Vector3 rotateStartPosition;
     private Vector3 rotateCurrentPosition;
 
+    private bool keyboardZoom;
+
     private Vector3 dragStartPosition;
     private Vector3 dragCurrentPosition;
+
+    private readonly Vector3 cameraMinimum = new Vector3(0f, 2f, -6f);
+    private readonly Vector3 cameraMaximum = new Vector3(0f, 30f, -20f);
+
+    private static Vector3 cameraTargetPos;
+
 
     // Start is called before the first frame update
     void Start()
@@ -32,8 +41,9 @@ public class CameraController : MonoBehaviour
         newPosition = transform.position;
         newRotation = transform.rotation;
         newZoom = cameraTransform.localPosition;
-        zoomAmount = new Vector3(0, (-zoomSpeed/100), (zoomSpeed / 100));
-        zoomAmountMouse = new Vector3(0, (-zoomSpeedMouse / 10), (zoomSpeedMouse / 10));
+        zoomAmount = new Vector3(0, (-zoomSpeed/50), (zoomSpeed / 100));
+        zoomAmountMouse = new Vector3(0, (-zoomSpeedMouse / 5), (zoomSpeedMouse / 10));
+        keyboardZoom = false;
     }
 
     // Update is called once per frame
@@ -78,21 +88,19 @@ public class CameraController : MonoBehaviour
         **/
 
         //ROTATION
-        if (Input.GetMouseButtonDown(2))
+        if (Input.GetMouseButtonDown(2)) //MMB
         {
             rotateStartPosition = Input.mousePosition;
         }
-        if (Input.GetMouseButton(2))
+        if (Input.GetMouseButton(2)) //MMB
         {
             rotateCurrentPosition = Input.mousePosition;
 
             Vector3 difference = rotateCurrentPosition - rotateStartPosition;
-            Debug.Log(difference);
-
+            
             rotateStartPosition = rotateCurrentPosition;
 
             newRotation *= Quaternion.Euler(Vector3.up * (difference.x / 5f));
-            Debug.Log(newRotation);
         }
 
         //ZOOM
@@ -147,11 +155,18 @@ public class CameraController : MonoBehaviour
         if (Input.GetKey(KeyCode.R))
         {
             newZoom += zoomAmount;
+            keyboardZoom = true;
         }
 
         if (Input.GetKey(KeyCode.F))
         {
             newZoom -= zoomAmount;
+            keyboardZoom = true;
+        }
+        if (keyboardZoom == true && !Input.GetKey(KeyCode.F) && !Input.GetKey(KeyCode.R))
+        {
+            newZoom = cameraTransform.localPosition;
+            keyboardZoom = false;
         }
 
     }
@@ -161,6 +176,35 @@ public class CameraController : MonoBehaviour
         //MOVE CAMERA
         transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementTime);
         transform.rotation = Quaternion.Lerp(transform.rotation, newRotation, Time.deltaTime * movementTime);
-        cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * movementTime);
+
+        float targetY = newZoom.y;
+        if (targetY > cameraMaximum.y) newZoom = cameraMaximum;
+        else if (targetY < cameraMinimum.y) newZoom = cameraMinimum;
+        cameraTransform.localPosition = Vector3.MoveTowards(cameraTransform.localPosition, newZoom, Time.deltaTime * movementTime);
+
+        //if (cameraMaximum.y >= newZoom.y && newZoom.y >= cameraMinimum.y)
+        //{
+        //    cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, newZoom, Time.deltaTime * movementTime);
+        //    cameraTargetPos = newZoom;
+        //}
+        //else if (newZoom.y < cameraMinimum.y)
+        //{
+        //    if (!cameraTargetPos.Equals(cameraMinimum)) cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, cameraMinimum, Time.deltaTime * movementTime);
+        //    cameraTargetPos = cameraMinimum;
+        //}
+        //else if (newZoom.y > cameraMaximum.y)
+        //{
+        //    if (!cameraTargetPos.Equals(cameraMaximum))
+        //    {
+        //        Debug.Log("current pos : " + cameraTransform.localPosition.ToString("F8") + " target pos : " + cameraMaximum.ToString("F8"));
+        //        cameraTransform.localPosition = Vector3.Lerp(cameraTransform.localPosition, cameraMaximum, Time.deltaTime * movementTime);
+        //    }
+        //    cameraTargetPos = cameraMaximum;
+        //}
+        //else Debug.Log("Zoom Limits Issue, Camera Controller: newZoom = " + newZoom);
+
+
+        //cameraTransform.rotation = Quaternion.Lerp(transform.rotation, newZoomRotation, Time.deltaTime * movementTime);
+        cameraTransform.LookAt(transform.position);
     }
 }
