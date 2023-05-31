@@ -15,6 +15,9 @@ public class CameraController : MonoBehaviour
     public float rotationSpeedMouse;
     public float zoomSpeed;
     public float zoomSpeedMouse;
+    public float zoomTrajectoryQuotient; // This number is essentially the "a" in the y=ax+b formula for the cameras movement. The higher the number the lower the angle between the ground and the camera, when zoomed in.
+    public float cameraMinimumY;
+    public float cameraMaximumY;
 
     private Vector3 zoomAmount;
     private Vector3 zoomAmountMouse;
@@ -23,38 +26,46 @@ public class CameraController : MonoBehaviour
     private Vector3 newZoom;
     private Vector3 rotateStartPosition;
     private Vector3 rotateCurrentPosition;
+    public float speedMultiplier;
 
-    private bool keyboardZoom;
+    private bool keyboardZoom; //used to stop camera instantly if zoom is performed with keyboard
 
-    private Vector3 dragStartPosition;
-    private Vector3 dragCurrentPosition;
+    //private Vector3 dragStartPosition;
+    //private Vector3 dragCurrentPosition;
 
-    private readonly Vector3 cameraMinimum = new Vector3(0f, 2f, -6f);
-    private readonly Vector3 cameraMaximum = new Vector3(0f, 30f, -20f);
-
-    private static Vector3 cameraTargetPos;
+    private Vector3 cameraMinimum;
+    private Vector3 cameraMaximum;
 
 
     // Start is called before the first frame update
     void Start()
     {
+        cameraMinimum = new Vector3(0f, cameraMinimumY, 0f);
+        cameraMaximum = new Vector3(0f, cameraMaximumY, 0f);
         newPosition = transform.position;
         newRotation = transform.rotation;
         newZoom = cameraTransform.localPosition;
-        zoomAmount = new Vector3(0, (-zoomSpeed/50), (zoomSpeed / 100));
-        zoomAmountMouse = new Vector3(0, (-zoomSpeedMouse / 5), (zoomSpeedMouse / 10));
+        zoomAmount = new Vector3(0, (-zoomSpeed/50), (zoomSpeed / (50*zoomTrajectoryQuotient)));
+        zoomAmountMouse = new Vector3(0, (-zoomSpeedMouse / 5), (zoomSpeedMouse / (5*zoomTrajectoryQuotient)));
+
         keyboardZoom = false;
+        speedMultiplier = 1f;
+
+        zoomTrajectoryQuotient = Mathf.Abs(zoomTrajectoryQuotient);
+        if (zoomTrajectoryQuotient == 0f) zoomTrajectoryQuotient = 1f;
+        CalculateZoomBoundaryYZ();
     }
 
     // Update is called once per frame
     void Update()
     {
-        handleMouseInput();
-        handleMovementInput();
-        moveCamera();
+        UpdateSpeed();
+        HandleMouseInput();
+        HandleMovementInput();
+        MoveCamera();
     }
 
-    void handleMouseInput()
+    void HandleMouseInput()
     {
 
         //TRANSLATION
@@ -110,17 +121,18 @@ public class CameraController : MonoBehaviour
         }
     }
 
-    void handleMovementInput()
+    void HandleMovementInput()
     {
         //DETERMINE SPEED
         if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
         {
-            movementSpeed = fastSpeed/100;
+            movementSpeed = (fastSpeed/100)*speedMultiplier;
         } 
         else
         {
-            movementSpeed = normalSpeed/100;
+            movementSpeed = (normalSpeed/100)*speedMultiplier;
         }
+
 
         //TRANSLATION
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.UpArrow)) {
@@ -171,7 +183,35 @@ public class CameraController : MonoBehaviour
 
     }
 
-    void moveCamera()
+    void CalculateZoomBoundaryYZ()
+    {
+        //y = -az+c
+        float c, a;
+        float yMax, zMax;
+        float yMin, zMin;
+
+        
+        a = -zoomTrajectoryQuotient;
+        c = (cameraTransform.localPosition.y - cameraTransform.localPosition.z*a);
+        yMax = cameraMaximum.y;
+        yMin = cameraMinimum.y;
+        zMax = (yMax - c) / a;
+        zMin = (yMin - c) / a;
+
+        Debug.Log("y=-az+c: y= " + a + "x + " + c);
+        Debug.Log("Minimum Z: " + zMax);
+        Debug.Log("Maximum Z: " + zMin);
+
+        cameraMinimum.z = zMin;
+        cameraMaximum.z = zMax;
+    }
+
+    void UpdateSpeed()
+    {
+        speedMultiplier = 1f + (cameraTransform.localPosition.y / (cameraMaximum.y - cameraMinimum.y))*3;
+    }
+    
+    void MoveCamera()
     {
         //MOVE CAMERA
         transform.position = Vector3.Lerp(transform.position, newPosition, Time.deltaTime * movementTime);

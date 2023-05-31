@@ -130,10 +130,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cameraTransform: {fileID: 5676883239590904355}
-  normalSpeed: 5
-  fastSpeed: 15
-  movementTime: 15
+  normalSpeed: 3
+  fastSpeed: 5
+  movementTime: 100
   rotationSpeed: 3
   rotationSpeedMouse: 1
-  zoomSpeed: 8
-  zoomSpeedMouse: 20
+  zoomSpeed: 4
+  zoomSpeedMouse: 12
+  zoomTrajectoryQuotient: 3
+  cameraMinimumY: 2
+  cameraMaximumY: 20
+  speedMultiplier: -0.24
