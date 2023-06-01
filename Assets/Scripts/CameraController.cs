@@ -190,17 +190,12 @@ public class CameraController : MonoBehaviour
         float yMax, zMax;
         float yMin, zMin;
 
-        
         a = -zoomTrajectoryQuotient;
         c = (cameraTransform.localPosition.y - cameraTransform.localPosition.z*a);
         yMax = cameraMaximum.y;
         yMin = cameraMinimum.y;
         zMax = (yMax - c) / a;
         zMin = (yMin - c) / a;
-
-        Debug.Log("y=-az+c: y= " + a + "x + " + c);
-        Debug.Log("Minimum Z: " + zMax);
-        Debug.Log("Maximum Z: " + zMin);
 
         cameraMinimum.z = zMin;
         cameraMaximum.z = zMax;
